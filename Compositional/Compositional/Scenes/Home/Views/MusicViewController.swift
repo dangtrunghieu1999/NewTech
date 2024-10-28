@@ -29,12 +29,18 @@ class MusicViewController: UIViewController {
         configureDataSource()
         configureLoadingView()
         setupBindings()
+        setupViews()
         viewModel.fetchData()
     }
 }
 
 // MARK: - Indicator
 private extension MusicViewController {
+    func setupViews() {
+        view.backgroundColor = .systemBackground
+        title = "Music"
+    }
+    
     func configureLoadingView() {
         view.addSubview(loadingView)
         NSLayoutConstraint.activate([
