@@ -11,8 +11,9 @@ struct MusicSection: Hashable {
     let id: String
     let type: SectionType
     let title: String
+    let items: [MusicItem]
     
-    enum SectionType: String {
+    enum SectionType: String, Hashable {
         case vertical
         case horizontal
     }

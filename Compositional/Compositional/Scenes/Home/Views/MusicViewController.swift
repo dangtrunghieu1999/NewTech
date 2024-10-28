@@ -9,17 +9,38 @@ import UIKit
 import Combine
 
 class MusicViewController: UIViewController {
+    // MARK: - Components
     private var collectionView: UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<HomeMusicSection, HomeMusicItem>!
+    private var dataSource: UICollectionViewDiffableDataSource<MusicSection, MusicItem>!
     private let viewModel = MusicViewModel()
     private var cancellables = Set<AnyCancellable>()
     
+    private lazy var loadingView: UIActivityIndicatorView = {
+         let indicator = UIActivityIndicatorView(style: .large)
+         indicator.hidesWhenStopped = true
+         indicator.translatesAutoresizingMaskIntoConstraints = false
+         return indicator
+     }()
+    
+    // MARK: - ViewLife Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
         configureDataSource()
+        configureLoadingView()
         setupBindings()
         viewModel.fetchData()
+    }
+}
+
+// MARK: - Indicator
+private extension MusicViewController {
+    func configureLoadingView() {
+        view.addSubview(loadingView)
+        NSLayoutConstraint.activate([
+            loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 }
 
@@ -48,26 +69,33 @@ private extension MusicViewController {
             .store(in: &cancellables)
     }
     
-    func updateSnapshot(with sections: [HomeMusicSection: [HomeMusicItem]]) {
-        var snapshot = NSDiffableDataSourceSnapshot<HomeMusicSection, HomeMusicItem>()
+    func updateSnapshot(with sections: [MusicSection]) {
+        var snapshot = NSDiffableDataSourceSnapshot<MusicSection, MusicItem>()
         
-        // Add sections in specific order
-        snapshot.appendSections([.vertical, .horizontal])
+        // Add all sections
+        snapshot.appendSections(sections)
         
         // Add items to each section
-        sections.forEach { section, items in
-            snapshot.appendItems(items, toSection: section)
+        sections.forEach { section in
+            snapshot.appendItems(section.items, toSection: section)
         }
         
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func updateLoadingState(_ isLoading: Bool) {
-        // Add loading indicator if needed
+        if isLoading {
+            loadingView.startAnimating()
+            collectionView.alpha = 0.5
+            view.isUserInteractionEnabled = false
+        } else {
+            loadingView.stopAnimating()
+            collectionView.alpha = 1.0
+            view.isUserInteractionEnabled = true
+        }
     }
     
     func showError(_ error: Error) {
-        // Show error alert
         let alert = UIAlertController(title: "Error",
                                       message: error.localizedDescription,
                                       preferredStyle: .alert)
@@ -188,8 +216,16 @@ extension MusicViewController {
 // MARK:- Data source
 extension MusicViewController {
     private func configureDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<HomeMusicSection, HomeMusicItem>(collectionView: collectionView) { (collectionView, indexPath, item) -> UICollectionViewCell? in
-            if indexPath.section == 0 {
+        dataSource = UICollectionViewDiffableDataSource<MusicSection, MusicItem>(
+            collectionView: collectionView
+        ) { [weak self] (collectionView, indexPath, item) -> UICollectionViewCell? in
+            guard let snapshot = self?.dataSource.snapshot() else {
+                return UICollectionViewCell()
+            }
+            let section = snapshot.sectionIdentifiers[indexPath.section]
+            
+            switch section.type {
+            case .vertical:
                 guard let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: MusicItemCell.reuseIdentifier,
                     for: indexPath
@@ -198,7 +234,8 @@ extension MusicViewController {
                 }
                 cell.configure(with: item)
                 return cell
-            } else {
+                
+            case .horizontal:
                 guard let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: HorizontalMusicItemCell.reuseIdentifier,
                     for: indexPath
@@ -210,14 +247,18 @@ extension MusicViewController {
             }
         }
         
-        dataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) -> UICollectionReusableView? in
+        dataSource.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
             guard let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
-                withReuseIdentifier: HeaderView.reuseIdentifier, for: indexPath
-            ) as? HeaderView else {
+                withReuseIdentifier: HeaderView.reuseIdentifier,
+                for: indexPath
+            ) as? HeaderView,
+            let snapshot = self?.dataSource.snapshot() else {
                 return UICollectionReusableView()
             }
-            header.configure(with: indexPath.section == 0 ? "Gợi ý cho bạn" : "Nghe gần đây")
+            
+            let section = snapshot.sectionIdentifiers[indexPath.section]
+            header.configure(with: section.title)
             return header
         }
     }

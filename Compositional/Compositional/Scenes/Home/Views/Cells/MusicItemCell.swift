@@ -32,7 +32,7 @@ class MusicItemCell: UICollectionViewCell {
         subtitleLabel.textColor = UIColor.gray
     }
     
-    func configure(with item: HomeMusicItem) {
+    func configure(with item: MusicItem) {
         titleLabel.text = item.title
         subtitleLabel.text = item.subtitle
         if let imageURL = item.imageURL {

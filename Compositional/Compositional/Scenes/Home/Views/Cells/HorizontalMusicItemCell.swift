@@ -30,7 +30,7 @@ class HorizontalMusicItemCell: UICollectionViewCell {
         titleLabel.textColor = UIColor.black
     }
     
-    func configure(with item: HomeMusicItem) {
+    func configure(with item: MusicItem) {
         titleLabel.text = item.title
         if let imageURL = item.imageURL {
             imageView.image = UIImage(named: imageURL)

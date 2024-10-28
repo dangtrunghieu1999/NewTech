@@ -1,95 +1,68 @@
 {
     "code": 200,
     "message": "Lấy dữ liệu thành công",
-    "data": {
-        "sections": [
-            {
-                "id": "suggestions",
-                "type": "vertical",
-                "title": "Gợi ý cho bạn",
-                "items": [
-                    {
-                        "id": "1",
-                        "title": "They said",
-                        "subtitle": "Binz",
-                        "imageURL": "song1"
-                    },
-                    {
-                        "id": "2",
-                        "title": "Đừng yêu em nữa em mệt rồi",
-                        "subtitle": "Min",
-                        "imageURL": "song2"
-                    },
-                    {
-                        "id": "3",
-                        "title": "Tell Me Why",
-                        "subtitle": "Mr. A, Touliver",
-                        "imageURL": "song3"
-                    }
-                ]
-            },
-            {
-                "id": "recent",
-                "type": "horizontal",
-                "title": "Nghe gần đây",
-                "items": [
-                    {
-                        "id": "4",
-                        "title": "Bài hát nghe gần đây",
-                        "subtitle": "",
-                        "imageURL": "album1"
-                    },
-                    {
-                        "id": "5",
-                        "title": "Greatest Hits Collection",
-                        "subtitle": "",
-                        "imageURL": "album2"
-                    },
-                    {
-                        "id": "6",
-                        "title": "Bí Ẩn Vàng Trăng Của Em",
-                        "subtitle": "",
-                        "imageURL": "album3"
-                    },
-                    {
-                        "id": "7",
-                        "title": "Top1 hay nghe gần đây",
-                        "subtitle": "",
-                        "imageURL": "album4"
-                    },
-                    {
-                        "id": "8",
-                        "title": "Chill cùng rap việt",
-                        "subtitle": "",
-                        "imageURL": "album5"
-                    }
-                ]
-            },
-            {
-                "id": "trending",
-                "type": "horizontal",
-                "title": "Thịnh hành",
-                "items": [
-                    {
-                        "id": "9",
-                        "title": "Top Trending",
-                        "subtitle": "",
-                        "imageURL": "trending1"
-                    },
-                    {
-                        "id": "10",
-                        "title": "Hot This Week",
-                        "subtitle": "",
-                        "imageURL": "trending2"
-                    },
-                    {
-                        "id": "11",
-                        "title": "New Releases",
-                        "subtitle": "",
-                        "imageURL": "trending3"
-                    }
-                ]
-            }
-        ]
-    }
+    "data": [
+        {
+            "id": "suggestions",
+            "type": "vertical",
+            "title": "Gợi ý cho bạn",
+            "items": [
+                {
+                    "id": "1",
+                    "title": "They said",
+                    "subtitle": "Binz",
+                    "imageURL": "song1"
+                },
+                {
+                    "id": "2",
+                    "title": "Đừng yêu em nữa em mệt rồi",
+                    "subtitle": "Min",
+                    "imageURL": "song2"
+                },
+                {
+                    "id": "3",
+                    "title": "Tell Me Why",
+                    "subtitle": "Mr. A, Touliver",
+                    "imageURL": "song3"
+                }
+            ]
+        },
+        {
+            "id": "recent",
+            "type": "horizontal",
+            "title": "Nghe gần đây",
+            "items": [
+                {
+                    "id": "4",
+                    "title": "Bài hát nghe gần đây",
+                    "subtitle": "",
+                    "imageURL": "album1"
+                },
+                {
+                    "id": "5",
+                    "title": "Greatest Hits Collection",
+                    "subtitle": "",
+                    "imageURL": "album2"
+                },
+                {
+                    "id": "6",
+                    "title": "Bí Ẩn Vàng Trăng Của Em",
+                    "subtitle": "",
+                    "imageURL": "album3"
+                },
+                {
+                    "id": "7",
+                    "title": "Top1 hay nghe gần đây",
+                    "subtitle": "",
+                    "imageURL": "album4"
+                },
+                {
+                    "id": "8",
+                    "title": "Chill cùng rap việt",
+                    "subtitle": "",
+                    "imageURL": "album5"
+                }
+            ]
+        }
+    ]
 }

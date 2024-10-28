@@ -17,7 +17,8 @@ struct MusicSectionDTO: Codable {
         MusicSection(
             id: id,
             type: MusicSection.SectionType(rawValue: type) ?? .vertical,
-            title: title
+            title: title,
+            items: items.map { $0.object }
         )
     }
 }

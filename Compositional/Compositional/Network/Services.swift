@@ -8,5 +8,5 @@
 import Foundation
 
 protocol Services {
-    func getHomeMusic()  async throws -> [MusicSectionDTO]
+    func getHomeMusic() async throws -> [MusicSectionDTO]
 }

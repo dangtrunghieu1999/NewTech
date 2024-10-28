@@ -14,6 +14,8 @@ class HeaderView: UICollectionReusableView {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        titleLabel.textColor = .black
     }
     
     override func prepareForReuse() {
