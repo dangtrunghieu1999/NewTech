@@ -8,21 +8,21 @@
                 "id": "art1",
                 "name": "The Night Owls",
                 "genre": "Alternative Rock",
-                "image_url": "https://example.com/artists/nightowls.jpg",
+                "image_url": "artist1",
                 "followers_count": 1200000
             },
             {
                 "id": "art2",
                 "name": "Beach Band",
                 "genre": "Pop",
-                "image_url": "https://example.com/artists/beachband.jpg",
+                "image_url": "artist2",
                 "followers_count": 850000
             },
             {
                 "id": "art3",
                 "name": "City Lights",
                 "genre": "Hip Hop",
-                "image_url": "https://example.com/artists/citylights.jpg",
+                "image_url": "artist3",
                 "followers_count": 2000000
             }
         ]

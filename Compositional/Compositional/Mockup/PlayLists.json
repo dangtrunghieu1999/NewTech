@@ -8,21 +8,21 @@
                 "id": "p1",
                 "name": "My Favorites",
                 "description": "Collection of favorite tracks",
-                "image_url": "https://example.com/playlists/favorites.jpg",
+                "image_url": "playlist1",
                 "tracks_count": 42
             },
             {
                 "id": "p2",
                 "name": "Workout Mix",
                 "description": "High energy workout playlist",
-                "image_url": "https://example.com/playlists/workout.jpg",
+                "image_url": "playlist2",
                 "tracks_count": 25
             },
             {
                 "id": "p3",
                 "name": "Chill Vibes",
                 "description": "Relaxing music collection",
-                "image_url": "https://example.com/playlists/chill.jpg",
+                "image_url": "playlist3",
                 "tracks_count": 30
             }
         ]
