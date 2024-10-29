@@ -18,4 +18,37 @@ struct MockNetworking: Services {
         let baseDTO = try decoder.decode(BaseDTO<[MusicSectionDTO]>.self, from: data)
         return baseDTO.data
     }
+    
+    func getLibraryAlbums() async throws -> AlbumsSectionDTO {
+        await Task.delay(seconds: 2)
+        guard let url = Bundle.main.url(forResource: "Albums", withExtension: "json") else {
+            throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
+        }
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let baseDTO = try decoder.decode(BaseDTO<AlbumsSectionDTO>.self, from: data)
+        return baseDTO.data
+    }
+    
+    func getLibraryArtists() async throws -> ArtistsSectionDTO {
+        await Task.delay(seconds: 2)
+        guard let url = Bundle.main.url(forResource: "Artists", withExtension: "json") else {
+            throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
+        }
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let baseDTO = try decoder.decode(BaseDTO<ArtistsSectionDTO>.self, from: data)
+        return baseDTO.data
+    }
+    
+    func getLibraryPlaylists() async throws -> PlaylistsSectionDTO {
+        await Task.delay(seconds: 2)
+        guard let url = Bundle.main.url(forResource: "PlayLists", withExtension: "json") else {
+            throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
+        }
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let baseDTO = try decoder.decode(BaseDTO<PlaylistsSectionDTO>.self, from: data)
+        return baseDTO.data
+    }
 }

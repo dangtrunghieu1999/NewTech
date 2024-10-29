@@ -1,0 +1,30 @@
+{
+    "code": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": {
+        "title": "Nghệ Sĩ Nổi Bật",
+        "items": [
+            {
+                "id": "art1",
+                "name": "The Night Owls",
+                "genre": "Alternative Rock",
+                "image_url": "https://example.com/artists/nightowls.jpg",
+                "followers_count": 1200000
+            },
+            {
+                "id": "art2",
+                "name": "Beach Band",
+                "genre": "Pop",
+                "image_url": "https://example.com/artists/beachband.jpg",
+                "followers_count": 850000
+            },
+            {
+                "id": "art3",
+                "name": "City Lights",
+                "genre": "Hip Hop",
+                "image_url": "https://example.com/artists/citylights.jpg",
+                "followers_count": 2000000
+            }
+        ]
+    }
+}

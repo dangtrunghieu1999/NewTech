@@ -9,4 +9,7 @@ import Foundation
 
 protocol Services {
     func getHomeMusic() async throws -> [MusicSectionDTO]
+    func getLibraryAlbums() async throws -> AlbumsSectionDTO
+    func getLibraryArtists() async throws -> ArtistsSectionDTO
+    func getLibraryPlaylists() async throws -> PlaylistsSectionDTO
 }

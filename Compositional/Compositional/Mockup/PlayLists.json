@@ -1,0 +1,30 @@
+{
+    "code": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": {
+        "title": "Playlist Của Bạn",
+        "items": [
+            {
+                "id": "p1",
+                "name": "My Favorites",
+                "description": "Collection of favorite tracks",
+                "image_url": "https://example.com/playlists/favorites.jpg",
+                "tracks_count": 42
+            },
+            {
+                "id": "p2",
+                "name": "Workout Mix",
+                "description": "High energy workout playlist",
+                "image_url": "https://example.com/playlists/workout.jpg",
+                "tracks_count": 25
+            },
+            {
+                "id": "p3",
+                "name": "Chill Vibes",
+                "description": "Relaxing music collection",
+                "image_url": "https://example.com/playlists/chill.jpg",
+                "tracks_count": 30
+            }
+        ]
+    }
+}

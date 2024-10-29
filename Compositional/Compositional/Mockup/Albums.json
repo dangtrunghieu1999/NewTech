@@ -1,0 +1,30 @@
+{
+    "code": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": {
+        "title": "Albums Mới Phát Hành",
+        "items": [
+            {
+                "id": "a1",
+                "name": "Midnight Memories",
+                "artist_name": "The Night Owls",
+                "image_url": "https://example.com/albums/midnight.jpg",
+                "release_year": "2024"
+            },
+            {
+                "id": "a2",
+                "name": "Summer Days",
+                "artist_name": "Beach Band",
+                "image_url": "https://example.com/albums/summer.jpg",
+                "release_year": "2023"
+            },
+            {
+                "id": "a3",
+                "name": "Urban Stories",
+                "artist_name": "City Lights",
+                "image_url": "https://example.com/albums/urban.jpg",
+                "release_year": "2024"
+            }
+        ]
+    }
+}
