@@ -8,44 +8,61 @@
 import Combine
 import UIKit
 
-class MusicViewModel {
-    // MARK: - Properties
+class MusicViewModel: ObservableObject {
+    // MARK: - Published Properties
+    @Published private(set) var sections: [MusicSection] = []
+    @Published private(set) var isLoading: Bool = false
+    @Published private(set) var error: Error?
+    @Published private(set) var expandedSections: Set<Int> = []
+    
+    // MARK: - Private Properties
+    private var originalSections: [MusicSection] = []
+    private let defaultVerticalDisplay: Int = 3
     private var cancellables = Set<AnyCancellable>()
-    
-    // Publishers
-    private let itemsSubject = CurrentValueSubject<[MusicSection], Never>([])
-    private let loadingSubject = CurrentValueSubject<Bool, Never>(false)
-    private let errorSubject = PassthroughSubject<Error, Never>()
-    
-    // Public publishers
-    var itemsPublisher: AnyPublisher<[MusicSection], Never> {
-        itemsSubject.eraseToAnyPublisher()
-    }
-    var isLoadingPublisher: AnyPublisher<Bool, Never> {
-        loadingSubject.eraseToAnyPublisher()
-    }
-    var errorPublisher: AnyPublisher<Error, Never> {
-        errorSubject.eraseToAnyPublisher()
-    }
     
     // MARK: - Methods
     func fetchData() {
-        loadingSubject.send(true)
+        guard !isLoading else { return }
         
-        Task {
+        isLoading = true
+        error = nil
+        
+        Task { @MainActor in
             do {
-                let musicData = try await NetworkProvider.getHomeMusic()
-                
-                await MainActor.run {
-                    self.itemsSubject.send(musicData)
-                    self.loadingSubject.send(false)
-                }
+                let fetchedSections = try await NetworkProvider.getHomeMusic()
+                self.originalSections = fetchedSections
+                updateDisplayedSections()
             } catch {
-                await MainActor.run {
-                    self.errorSubject.send(error)
-                    self.loadingSubject.send(false)
+                self.error = error
+            }
+            isLoading = false
+        }
+    }
+    
+    func toggleExpand(for sectionIndex: Int) {
+        if expandedSections.contains(sectionIndex) {
+            expandedSections.remove(sectionIndex)
+        } else {
+            expandedSections.insert(sectionIndex)
+        }
+        updateDisplayedSections()
+    }
+    
+    // MARK: - Private Methods
+    private func updateDisplayedSections() {
+        sections = originalSections.enumerated().map { index, section in
+            if section.type == .vertical {
+                if !expandedSections.contains(index) {
+                    var limitedSection = section
+                    limitedSection.items = Array(section.items.prefix(defaultVerticalDisplay))
+                    return limitedSection
                 }
             }
+            return section
         }
+    }
+    
+    func isExpanded(for sectionIndex: Int) -> Bool {
+        expandedSections.contains(sectionIndex)
     }
 }

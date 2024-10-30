@@ -62,4 +62,15 @@ extension NetworkClient: Services {
         }
         return try await network.getLibraryPlaylists()
     }
+    
+    func getSongs() async throws -> [SongItemDTO] {
+        guard let network = network else {
+            throw NSError(
+                domain: "NetworkClient",
+                code: 500,
+                userInfo: [NSLocalizedDescriptionKey: "Network client not initialized"]
+            )
+        }
+        return try await network.getSongs()
+    }
 }

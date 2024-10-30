@@ -39,4 +39,10 @@ class MusicItemCell: UICollectionViewCell {
             imageView.image = UIImage(named: imageURL)
         }
     }
+    
+    func configure(with item: SongItem) {
+        titleLabel.text = item.name
+        subtitleLabel.text = item.artistName
+        imageView.image = UIImage(named: item.imageURl)
+    }
 }

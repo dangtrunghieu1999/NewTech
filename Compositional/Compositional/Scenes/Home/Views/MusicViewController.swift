@@ -11,7 +11,7 @@ import Combine
 class MusicViewController: UIViewController {
     // MARK: - Components
     private var collectionView: UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<MusicSection, MusicItem>!
+    private var dataSource: UICollectionViewDiffableDataSource<MusicSection, MusicItem>?
     private let viewModel = MusicViewModel()
     private var cancellables = Set<AnyCancellable>()
     
@@ -53,24 +53,28 @@ private extension MusicViewController {
 // MARK: - Setup
 private extension MusicViewController {
     func setupBindings() {
-        viewModel.itemsPublisher
+        viewModel.$sections
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sections in
-                self?.updateSnapshot(with: sections)
+                guard let self = self else { return }
+                self.updateSnapshot(with: sections)
             }
             .store(in: &cancellables)
         
-        viewModel.isLoadingPublisher
+        viewModel.$isLoading
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
-                self?.updateLoadingState(isLoading)
+                guard let self = self else { return }
+                self.updateLoadingState(isLoading)
             }
             .store(in: &cancellables)
         
-        viewModel.errorPublisher
+        viewModel.$error
             .receive(on: DispatchQueue.main)
             .sink { [weak self] error in
-                self?.showError(error)
+                guard let self = self,
+                      let error = error else { return }
+                self.showError(error)
             }
             .store(in: &cancellables)
     }
@@ -86,7 +90,7 @@ private extension MusicViewController {
             snapshot.appendItems(section.items, toSection: section)
         }
         
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource?.apply(snapshot, animatingDifferences: true)
     }
     
     func updateLoadingState(_ isLoading: Bool) {
@@ -124,6 +128,11 @@ extension MusicViewController {
         collectionView.register(HeaderView.nib,
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                                 withReuseIdentifier: HeaderView.reuseIdentifier)
+        collectionView.register(
+            SeeMoreFooterView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: SeeMoreFooterView.reuseIdentifier
+        )
     }
     
     private func createLayout() -> UICollectionViewLayout {
@@ -172,7 +181,19 @@ extension MusicViewController {
             elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
-        section.boundarySupplementaryItems = [header]
+        
+        // Footer
+        let footerSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .absolute(50)
+        )
+        let footer = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: footerSize,
+            elementKind: UICollectionView.elementKindSectionFooter,
+            alignment: .bottom
+        )
+        
+        section.boundarySupplementaryItems = [header, footer]
         
         return section
     }
@@ -219,13 +240,13 @@ extension MusicViewController {
     }
 }
 
-// MARK:- Data source
+// MARK: - Data source
 extension MusicViewController {
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<MusicSection, MusicItem>(
             collectionView: collectionView
         ) { [weak self] (collectionView, indexPath, item) -> UICollectionViewCell? in
-            guard let snapshot = self?.dataSource.snapshot() else {
+            guard let snapshot = self?.dataSource?.snapshot() else {
                 return UICollectionViewCell()
             }
             let section = snapshot.sectionIdentifiers[indexPath.section]
@@ -253,19 +274,49 @@ extension MusicViewController {
             }
         }
         
-        dataSource.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
-            guard let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: HeaderView.reuseIdentifier,
-                for: indexPath
-            ) as? HeaderView,
-            let snapshot = self?.dataSource.snapshot() else {
-                return UICollectionReusableView()
+        dataSource?.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
+            switch kind {
+            case UICollectionView.elementKindSectionHeader:
+                guard let header = collectionView.dequeueReusableSupplementaryView(
+                    ofKind: kind,
+                    withReuseIdentifier: HeaderView.reuseIdentifier,
+                    for: indexPath
+                ) as? HeaderView else {
+                    return UICollectionReusableView()
+                }
+                guard let snapshot = self?.dataSource?.snapshot() else {
+                    return UICollectionReusableView()
+                }
+                
+                let section = snapshot.sectionIdentifiers[indexPath.section]
+                header.configure(with: section.title)
+                return header
+                
+            case UICollectionView.elementKindSectionFooter:
+                guard let footer = collectionView.dequeueReusableSupplementaryView(
+                    ofKind: kind,
+                    withReuseIdentifier: SeeMoreFooterView.reuseIdentifier,
+                    for: indexPath
+                ) as? SeeMoreFooterView, let self = self else {
+                    return UICollectionReusableView()
+                }
+                footer.configure(
+                    isExpanded: self.viewModel.isExpanded(for: indexPath.section),
+                    sectionIndex: indexPath.section
+                )
+                footer.delegate = self
+                return footer
+                
+            default:
+                return nil
             }
-            
-            let section = snapshot.sectionIdentifiers[indexPath.section]
-            header.configure(with: section.title)
-            return header
         }
+    }
+}
+
+// MARK: - SeeMoreFooterViewDelegate
+extension MusicViewController: SeeMoreFooterViewDelegate {
+    func seeMoreFooterViewDidSelect(_ footerView: SeeMoreFooterView) {
+        viewModel.toggleExpand(for: footerView.sectionIndex)
     }
 }

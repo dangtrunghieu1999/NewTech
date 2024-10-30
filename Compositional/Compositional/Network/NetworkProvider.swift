@@ -25,4 +25,8 @@ class NetworkProvider {
     static func getPlaylists() async throws -> PlaylistsSection {
         try await apis.getLibraryPlaylists().toDomain()
     }
+    
+    static func getSongs() async throws -> [SongItem] {
+        try await apis.getSongs().map { $0.toDomain() }
+    }
 }

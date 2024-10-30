@@ -1,0 +1,76 @@
+{
+    "code": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": [
+        {
+            "id": "a1",
+            "name": "Midnight Memories",
+            "artist_name": "The Night Owls",
+            "image_url": "library_album1",
+            "release_year": "2024"
+        },
+        {
+            "id": "a2",
+            "name": "Summer Days",
+            "artist_name": "Beach Band",
+            "image_url": "library_album2",
+            "release_year": "2023"
+        },
+        {
+            "id": "a3",
+            "name": "Urban Stories",
+            "artist_name": "City Lights",
+            "image_url": "library_album3",
+            "release_year": "2024"
+        },
+        {
+            "id": "a4",
+            "name": "Electric Dreams",
+            "artist_name": "Synth Wave",
+            "image_url": "library_album1",
+            "release_year": "2024"
+        },
+        {
+            "id": "a5",
+            "name": "Mountain Echo",
+            "artist_name": "Nature Sounds",
+            "image_url": "library_album2",
+            "release_year": "2024"
+        },
+        {
+            "id": "a6",
+            "name": "Jazz Nights",
+            "artist_name": "Blue Note Quartet",
+            "image_url": "library_album3",
+            "release_year": "2023"
+        },
+        {
+            "id": "a7",
+            "name": "Ocean Waves",
+            "artist_name": "Coastal Vibes",
+            "image_url": "library_album1",
+            "release_year": "2024"
+        },
+        {
+            "id": "a8",
+            "name": "City Lights",
+            "artist_name": "Urban Beat",
+            "image_url": "library_album2",
+            "release_year": "2023"
+        },
+        {
+            "id": "a9",
+            "name": "Desert Wind",
+            "artist_name": "Sand Riders",
+            "image_url": "library_album3",
+            "release_year": "2024"
+        },
+        {
+            "id": "a10",
+            "name": "Forest Dreams",
+            "artist_name": "Nature's Voice",
+            "image_url": "library_album1",
+            "release_year": "2024"
+        }
+    ]
+}
