@@ -8,69 +8,45 @@
 import Combine
 import Foundation
 
-class LibraryViewModel {
+@MainActor
+class LibraryViewModel: ObservableObject {
     // MARK: - Properties
+    @Published private(set) var state: Loadable<[LibrarySection]> = .loaded(value: [])
     private var cancellables = Set<AnyCancellable>()
-    
-    // Publishers
-    private let sectionsSubject = CurrentValueSubject<[LibrarySection], Never>([])
-    private let loadingSubject = CurrentValueSubject<Bool, Never>(false)
-    private let errorSubject = PassthroughSubject<Error, Never>()
-    
-    // Public publishers
-    var sectionsPublisher: AnyPublisher<[LibrarySection], Never> {
-        sectionsSubject.eraseToAnyPublisher()
-    }
-    var isLoadingPublisher: AnyPublisher<Bool, Never> {
-        loadingSubject.eraseToAnyPublisher()
-    }
-    var errorPublisher: AnyPublisher<Error, Never> {
-        errorSubject.eraseToAnyPublisher()
-    }
     
     // MARK: - Methods
     func fetchData() {
-        loadingSubject.send(true)
+        guard !state.isLoading else { return }
         
-        Task {
+        let lastValue = state.valueOrPast
+        state = .isLoading(last: lastValue)
+        
+        Task { @MainActor in
             do {
-                // First API call - Albums
                 let albums = try await NetworkProvider.getAlbums()
-                await MainActor.run {
-                    let section = LibrarySection(
-                        title: albums.title,
-                        items: albums.items.map { LibraryItem.album($0) }
-                    )
-                    self.sectionsSubject.send([section])
-                }
+                let section = LibrarySection(
+                    title: albums.title,
+                    items: albums.items.map { LibraryItem.album($0) }
+                )
+                state = .loaded(value: [section])
                 
-                // Second API call - Artists
                 let artists = try await NetworkProvider.getArtists()
-                await MainActor.run {
-                    var sections = self.sectionsSubject.value
-                    sections.append(LibrarySection(
-                        title: artists.title,
-                        items: artists.items.map { LibraryItem.artist($0) }
-                    ))
-                    self.sectionsSubject.send(sections)
-                }
+                var sections = state.value ?? []
+                sections.append(LibrarySection(
+                    title: artists.title,
+                    items: artists.items.map { LibraryItem.artist($0) }
+                ))
+                state = .loaded(value: sections)
                 
-                // Third API call - Playlists
                 let playlists = try await NetworkProvider.getPlaylists()
-                await MainActor.run {
-                    var sections = self.sectionsSubject.value
-                    sections.append(LibrarySection(
-                        title: playlists.title,
-                        items: playlists.items.map { LibraryItem.playlist($0) }
-                    ))
-                    self.sectionsSubject.send(sections)
-                    self.loadingSubject.send(false)
-                }
+                sections = state.value ?? []
+                sections.append(LibrarySection(
+                    title: playlists.title,
+                    items: playlists.items.map { LibraryItem.playlist($0) }
+                ))
+                state = .loaded(value: sections)
             } catch {
-                await MainActor.run {
-                    self.errorSubject.send(error)
-                    self.loadingSubject.send(false)
-                }
+                state = .failed(error: error)
             }
         }
     }

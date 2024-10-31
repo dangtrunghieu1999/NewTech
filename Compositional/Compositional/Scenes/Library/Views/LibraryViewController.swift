@@ -11,7 +11,7 @@ import Combine
 class LibraryViewController: UIViewController {
     // MARK: - Components
     private var collectionView: UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<LibrarySection, LibraryItem>!
+    private var dataSource: UICollectionViewDiffableDataSource<LibrarySection, LibraryItem>?
     private let viewModel = LibraryViewModel()
     private var cancellables = Set<AnyCancellable>()
     
@@ -53,40 +53,31 @@ private extension LibraryViewController {
 // MARK: - Setup
 private extension LibraryViewController {
     func setupBindings() {
-        viewModel.sectionsPublisher
+        viewModel.$state
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] sections in
-                self?.updateSnapshot(with: sections)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.isLoadingPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                self?.updateLoadingState(isLoading)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.errorPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
-                self?.showError(error)
+            .sink { [weak self] state in
+                guard let self = self else { return }
+                handleState(state)
             }
             .store(in: &cancellables)
     }
     
-    func updateSnapshot(with sections: [LibrarySection]) {
-        var snapshot = NSDiffableDataSourceSnapshot<LibrarySection, LibraryItem>()
-        
-        // Add all sections
-        snapshot.appendSections(sections)
-        
-        // Add items to each section
-        sections.forEach { section in
-            snapshot.appendItems(section.items, toSection: section)
+    private func handleState(_ state: Loadable<[LibrarySection]>) {
+        switch state {
+        case .isLoading(let lastSections):
+            updateLoadingState(true)
+            if let sections = lastSections {
+                updateSnapshot(with: sections)
+            }
+            
+        case .loaded(let sections):
+            updateLoadingState(false)
+            updateSnapshot(with: sections)
+            
+        case .failed(let error):
+            updateLoadingState(false)
+            showError(error)
         }
-        
-        dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func updateLoadingState(_ isLoading: Bool) {
@@ -101,10 +92,21 @@ private extension LibraryViewController {
         }
     }
     
+    func updateSnapshot(with sections: [LibrarySection]) {
+        var snapshot = NSDiffableDataSourceSnapshot<LibrarySection, LibraryItem>()
+        snapshot.appendSections(sections)
+        sections.forEach { section in
+            snapshot.appendItems(section.items, toSection: section)
+        }
+        dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+    
     func showError(_ error: Error) {
-        let alert = UIAlertController(title: "Error",
-                                      message: error.localizedDescription,
-                                      preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -176,7 +178,7 @@ extension LibraryViewController {
     }
 }
 
-// MARK:- Data source
+// MARK: - Data source
 extension LibraryViewController {
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<LibrarySection, LibraryItem>(
@@ -215,13 +217,13 @@ extension LibraryViewController {
             }
         }
         
-        dataSource.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
+        dataSource?.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
             guard let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
                 withReuseIdentifier: HeaderView.reuseIdentifier,
                 for: indexPath
             ) as? HeaderView,
-            let snapshot = self?.dataSource.snapshot() else {
+            let snapshot = self?.dataSource?.snapshot() else {
                 return UICollectionReusableView()
             }
             
