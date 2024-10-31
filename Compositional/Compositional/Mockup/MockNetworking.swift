@@ -9,7 +9,7 @@ import Foundation
 
 struct MockNetworking: Services {
     func getHomeMusic() async throws -> [MusicSectionDTO] {
-        await Task.delay(seconds: 2)
+        await Task.delay(seconds: 1)
         guard let url = Bundle.main.url(forResource: "HomeMusic", withExtension: "json") else {
             throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
         }
@@ -20,7 +20,7 @@ struct MockNetworking: Services {
     }
     
     func getLibraryAlbums() async throws -> AlbumsSectionDTO {
-        await Task.delay(seconds: 2)
+        await Task.delay(seconds: 1)
         guard let url = Bundle.main.url(forResource: "Albums", withExtension: "json") else {
             throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
         }
@@ -31,7 +31,7 @@ struct MockNetworking: Services {
     }
     
     func getLibraryArtists() async throws -> ArtistsSectionDTO {
-        await Task.delay(seconds: 2)
+        await Task.delay(seconds: 1)
         guard let url = Bundle.main.url(forResource: "Artists", withExtension: "json") else {
             throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
         }
@@ -42,7 +42,7 @@ struct MockNetworking: Services {
     }
     
     func getLibraryPlaylists() async throws -> PlaylistsSectionDTO {
-        await Task.delay(seconds: 2)
+        await Task.delay(seconds: 1)
         guard let url = Bundle.main.url(forResource: "PlayLists", withExtension: "json") else {
             throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
         }
@@ -53,7 +53,7 @@ struct MockNetworking: Services {
     }
     
     func getSongs() async throws -> [SongItemDTO] {
-        await Task.delay(seconds: 2)
+        await Task.delay(seconds: 1)
         guard let url = Bundle.main.url(forResource: "Songs", withExtension: "json") else {
             throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
         }
