@@ -1,0 +1,97 @@
+{
+    "code": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": [
+        {
+            "id": "search",
+            "type": "search",
+            "title": "Tìm kiếm",
+            "items": []
+        },
+        {
+            "id": "services",
+            "type": "services",
+            "title": "Dịch vụ phổ biến",
+            "items": [
+                {
+                    "id": "1",
+                    "title": "Cài đặt",
+                    "subtitle": null,
+                    "iconName": "gearshape",
+                    "backgroundColor": "#E0F7FA"
+                },
+                {
+                    "id": "2",
+                    "title": "Chuyển tiền",
+                    "subtitle": null,
+                    "iconName": "arrow.up.arrow.down",
+                    "backgroundColor": "#E0F7FA"
+                },
+                {
+                    "id": "3",
+                    "title": "Thanh toán hoá đơn",
+                    "subtitle": null,
+                    "iconName": "arrow.up.arrow.down",
+                    "backgroundColor": "#E0F7FA"
+                },
+                {
+                    "id": "4",
+                    "title": "Tài khoản cá nhân",
+                    "subtitle": null,
+                    "iconName": "arrow.up.arrow.down",
+                    "backgroundColor": "#E0F7FA"
+                },
+                {
+                    "id": "5",
+                    "title": "Lịch sử giao dịch",
+                    "subtitle": null,
+                    "iconName": "arrow.up.arrow.down",
+                    "backgroundColor": "#E0F7FA"
+                },
+                {
+                    "id": "6",
+                    "title": "quản lý thẻ",
+                    "subtitle": null,
+                    "iconName": "arrow.up.arrow.down",
+                    "backgroundColor": "#E0F7FA"
+                }
+            ]
+        },
+        {
+            "id": "transfer",
+            "type": "transfer",
+            "title": "Chuyển tiền",
+            "items": [
+                {
+                    "id": "3",
+                    "title": "NGUYEN DUY PHUONG",
+                    "subtitle": "0906371882",
+                    "iconName": "person.circle.fill",
+                    "backgroundColor": "#FFFFFF"
+                },
+                {
+                    "id": "4",
+                    "title": "TRUONG QUOC KHANH",
+                    "subtitle": "203208577",
+                    "iconName": "person.circle.fill",
+                    "backgroundColor": "#FFFFFF"
+                }
+            ]
+        },
+        {
+            "id": "recharge",
+            "type": "recharge",
+            "title": "Nạp tiền điện thoại",
+            "items": [
+                {
+                    "id": "5",
+                    "title": "Số của tôi",
+                    "subtitle": "0906371882",
+                    "iconName": "phone.fill",
+                    "backgroundColor": "#FFF3E0"
+                }
+            ]
+        }
+    ]
+}
+}

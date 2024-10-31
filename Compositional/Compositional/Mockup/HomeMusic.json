@@ -26,20 +26,20 @@
                     "imageURL": "song3"
                 },
                 {
-                    "id": "4",
-                    "title": "They said",
+                    "id": "1",
+                    "title": "Người ta nói",
                     "subtitle": "Binz",
                     "imageURL": "song1"
                 },
                 {
-                    "id": "5",
-                    "title": "Đừng yêu em nữa em mệt rồi",
-                    "subtitle": "Min",
+                    "id": "2",
+                    "title": "Không thể say",
+                    "subtitle": "Hieuthu2",
                     "imageURL": "song2"
                 },
                 {
-                    "id": "6",
-                    "title": "Tell Me Why",
+                    "id": "3",
+                    "title": "Quay đi quay lại",
                     "subtitle": "Mr. A, Touliver",
                     "imageURL": "song3"
                 }
