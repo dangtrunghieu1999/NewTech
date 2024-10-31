@@ -53,47 +53,33 @@ private extension MusicViewController {
 // MARK: - Setup
 private extension MusicViewController {
     func setupBindings() {
-        viewModel.$sections
+        viewModel.$state
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] sections in
-                guard let self = self else { return }
-                self.updateSnapshot(with: sections)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                guard let self = self else { return }
-                self.updateLoadingState(isLoading)
-            }
-            .store(in: &cancellables)
-        
-        viewModel.$error
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
-                guard let self = self,
-                      let error = error else { return }
-                self.showError(error)
+            .sink { [weak self] state in
+                self?.handleState(state)
             }
             .store(in: &cancellables)
     }
     
-    func updateSnapshot(with sections: [MusicSection]) {
-        var snapshot = NSDiffableDataSourceSnapshot<MusicSection, MusicItem>()
-        
-        // Add all sections
-        snapshot.appendSections(sections)
-        
-        // Add items to each section
-        sections.forEach { section in
-            snapshot.appendItems(section.items, toSection: section)
+    private func handleState(_ state: Loadable<[MusicSection]>) {
+        switch state {
+        case .isLoading(let lastSections):
+            updateLoadingState(true)
+            if let sections = lastSections {
+                updateSnapshot(with: sections)
+            }
+            
+        case .loaded(let sections):
+            updateLoadingState(false)
+            updateSnapshot(with: sections)
+            
+        case .failed(let error):
+            updateLoadingState(false)
+            showError(error)
         }
-        
-        dataSource?.apply(snapshot, animatingDifferences: true)
     }
     
-    func updateLoadingState(_ isLoading: Bool) {
+    private func updateLoadingState(_ isLoading: Bool) {
         if isLoading {
             loadingView.startAnimating()
             collectionView.alpha = 0.5
@@ -105,10 +91,21 @@ private extension MusicViewController {
         }
     }
     
-    func showError(_ error: Error) {
-        let alert = UIAlertController(title: "Error",
-                                      message: error.localizedDescription,
-                                      preferredStyle: .alert)
+    private func updateSnapshot(with sections: [MusicSection]) {
+        var snapshot = NSDiffableDataSourceSnapshot<MusicSection, MusicItem>()
+        snapshot.appendSections(sections)
+        sections.forEach { section in
+            snapshot.appendItems(section.items, toSection: section)
+        }
+        dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+    
+    private func showError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -240,7 +237,7 @@ extension MusicViewController {
     }
 }
 
-// MARK: - Data source
+// MARK:- Data source
 extension MusicViewController {
     private func configureDataSource() {
         dataSource = UICollectionViewDiffableDataSource<MusicSection, MusicItem>(
@@ -314,7 +311,6 @@ extension MusicViewController {
     }
 }
 
-// MARK: - SeeMoreFooterViewDelegate
 extension MusicViewController: SeeMoreFooterViewDelegate {
     func seeMoreFooterViewDidSelect(_ footerView: SeeMoreFooterView) {
         viewModel.toggleExpand(for: footerView.sectionIndex)

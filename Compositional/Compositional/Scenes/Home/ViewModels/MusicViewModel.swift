@@ -10,9 +10,7 @@ import UIKit
 
 class MusicViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published private(set) var sections: [MusicSection] = []
-    @Published private(set) var isLoading: Bool = false
-    @Published private(set) var error: Error?
+    @Published private(set) var state: Loadable<[MusicSection]> = .loaded(value: [])
     @Published private(set) var expandedSections: Set<Int> = []
     
     // MARK: - Private Properties
@@ -22,20 +20,18 @@ class MusicViewModel: ObservableObject {
     
     // MARK: - Methods
     func fetchData() {
-        guard !isLoading else { return }
+        guard !state.isLoading else { return }
         
-        isLoading = true
-        error = nil
+        let lastValue = state.valueOrPast
+        state = .isLoading(last: lastValue)
         
         Task { @MainActor in
             do {
-                let fetchedSections = try await NetworkProvider.getHomeMusic()
-                self.originalSections = fetchedSections
+                self.originalSections = try await NetworkProvider.getHomeMusic()
                 updateDisplayedSections()
             } catch {
-                self.error = error
+                state = .failed(error: error)
             }
-            isLoading = false
         }
     }
     
@@ -50,7 +46,7 @@ class MusicViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func updateDisplayedSections() {
-        sections = originalSections.enumerated().map { index, section in
+        let processedSections = originalSections.enumerated().map { index, section in
             if section.type == .vertical {
                 if !expandedSections.contains(index) {
                     var limitedSection = section
@@ -60,6 +56,8 @@ class MusicViewModel: ObservableObject {
             }
             return section
         }
+        
+        state = .loaded(value: processedSections)
     }
     
     func isExpanded(for sectionIndex: Int) -> Bool {
