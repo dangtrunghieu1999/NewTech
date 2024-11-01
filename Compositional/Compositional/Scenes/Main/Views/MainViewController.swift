@@ -20,7 +20,8 @@ class MainViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.backgroundColor = .white
         return collectionView
     }()
     
@@ -66,12 +67,32 @@ class MainViewController: UIViewController {
         return indicator
     }()
     
+    private let headerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        return view
+    }()
+    
+    private let avatarImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = UIImage(named: "artist2")
+        return imageView
+    }()
+    
+    private var headerHeightConstraint: Constraint?
+    private var avatarSizeConstraint: Constraint?
+    private var avatarCenterXConstraint: Constraint?
+    private var avatarLeadingConstraint: Constraint?
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         
         collectionView.setCollectionViewLayout(createLayout(), animated: false)
+        collectionView.delegate = self
         
         configureCollectionView()
         configureDataSource()
@@ -158,6 +179,8 @@ private extension MainViewController {
     func setupViews() {
         view.backgroundColor = .white
         
+        setupHeaderView()
+        
         view.addSubview(segmentStackView)
         segmentStackView.addArrangedSubview(segmentControl)
         
@@ -178,10 +201,34 @@ private extension MainViewController {
         
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(headerView.snp.bottom)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(segmentStackView.snp.top)
         }
+    }
+    
+    func setupHeaderView() {
+        view.addSubview(headerView)
+        headerView.addSubview(avatarImageView)
+        
+        headerView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+            headerHeightConstraint = make.height.equalTo(200).constraint
+        }
+        
+        avatarImageView.snp.makeConstraints { make in
+            avatarSizeConstraint = make.width.height.equalTo(100).constraint
+            make.centerY.equalToSuperview()
+            avatarCenterXConstraint = make.centerX.equalToSuperview().constraint
+        }
+        
+        avatarImageView.snp.prepareConstraints { make in
+            avatarLeadingConstraint = make.leading.equalTo(16).constraint
+        }
+        avatarLeadingConstraint?.deactivate()
+        
+        avatarImageView.layer.cornerRadius = 50
     }
     
     func configureDataSource() {
@@ -337,5 +384,32 @@ private extension MainViewController {
 extension MainViewController: SeeMoreFooterViewDelegate {
     func seeMoreFooterViewDidSelect(_ footerView: SeeMoreFooterView) {
         viewModel.toggleExpand(for: footerView.sectionIndex)
+    }
+}
+
+// MARK:- UIScrollViewDelegate
+extension MainViewController: UIScrollViewDelegate, UICollectionViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset = scrollView.contentOffset.y
+        
+        let newHeight = max(100, 200 - offset)
+        headerHeightConstraint?.update(offset: newHeight)
+        
+        let newAvatarSize = max(50, 100 - offset / 2)
+        avatarSizeConstraint?.update(offset: newAvatarSize)
+        avatarImageView.layer.cornerRadius = newAvatarSize / 2
+        
+        if offset > 100 {
+            avatarCenterXConstraint?.deactivate()
+            avatarLeadingConstraint?.activate()
+        } else {
+            avatarLeadingConstraint?.deactivate()
+            avatarCenterXConstraint?.activate()
+        }
+        
+        // Animate changes
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
     }
 }
