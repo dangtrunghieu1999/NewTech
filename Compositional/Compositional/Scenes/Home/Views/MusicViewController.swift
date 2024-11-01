@@ -149,122 +149,21 @@ extension MusicViewController {
             make.top.equalTo(headerView.snp.bottom)
             make.leading.bottom.trailing.equalToSuperview()
         }
-        
-        // Register cells and supplementary views
-        collectionView.register(MusicItemCell.reuseIdentifier)
-        collectionView.register(HorizontalMusicItemCell.reuseIdentifier)
-        collectionView.register(HeaderView.nib,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: HeaderView.reuseIdentifier)
-        collectionView.register(
+        collectionView.registerReusableCell(MusicItemCell.self)
+        collectionView.registerReusableNibCell(HorizontalMusicItemCell.self)
+        collectionView.registerReusableSupplementaryView(
+            HeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader
+        )
+        collectionView.registerReusableSupplementaryView(
             SeeMoreFooterView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-            withReuseIdentifier: SeeMoreFooterView.reuseIdentifier
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter
         )
     }
     
     private func createLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
-            if sectionIndex == 0 {
-                return self.createVerticalSection()
-            } else {
-                return self.createHorizontalSection()
-            }
-        }
-        return layout
-    }
-    
-    private func createVerticalSection() -> NSCollectionLayoutSection {
-        // Item
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        // Group
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
-        )
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: groupSize,
-            subitems: [item]
-        )
-        
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 10
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0,
-                                                        leading: 16,
-                                                        bottom: 0,
-                                                        trailing: 16)
-        // Header
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        
-        // Footer
-        let footerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(50)
-        )
-        let footer = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: footerSize,
-            elementKind: UICollectionView.elementKindSectionFooter,
-            alignment: .bottom
-        )
-        
-        section.boundarySupplementaryItems = [header, footer]
-        
-        return section
-    }
-    
-    private func createHorizontalSection() -> NSCollectionLayoutSection {
-        // Item
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(115),  // Fixed width of 115
-            heightDimension: .estimated(140)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 5,
-            bottom: 0,
-            trailing: 5
-        )
-        
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: itemSize,
-            subitems: [item]
-        )
-        
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0,
-                                                        leading: 16,
-                                                        bottom: 0,
-                                                        trailing: 16)
-        // Header
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        section.boundarySupplementaryItems = [header]
-        
-        return section
+        let layoutProvider = MainLayoutFactory.createLayout(for: .music)
+        return layoutProvider.createLayout()
     }
 }
 
@@ -281,62 +180,40 @@ extension MusicViewController {
             
             switch section.type {
             case .vertical:
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MusicItemCell.reuseIdentifier,
-                    for: indexPath
-                ) as? MusicItemCell else {
-                    return UICollectionViewCell()
-                }
+                let cell: MusicItemCell = collectionView.dequeueReusableCell(for: indexPath)
                 cell.configure(with: item)
                 return cell
                 
             case .horizontal:
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: HorizontalMusicItemCell.reuseIdentifier,
-                    for: indexPath
-                ) as? HorizontalMusicItemCell else {
-                    return UICollectionViewCell()
-                }
+                let cell: HorizontalMusicItemCell = collectionView.dequeueReusableCell(for: indexPath)
                 cell.configure(with: item)
                 return cell
             }
         }
         
         dataSource?.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
-            switch kind {
-            case UICollectionView.elementKindSectionHeader:
-                guard let header = collectionView.dequeueReusableSupplementaryView(
+            guard let self = self,
+                  let snapshot = self.dataSource?.snapshot() else {
+                return nil
+            }
+            if kind == UICollectionView.elementKindSectionHeader {
+                let header: HeaderView = collectionView.dequeueReusableSupplementaryView(
                     ofKind: kind,
-                    withReuseIdentifier: HeaderView.reuseIdentifier,
-                    for: indexPath
-                ) as? HeaderView else {
-                    return UICollectionReusableView()
-                }
-                guard let snapshot = self?.dataSource?.snapshot() else {
-                    return UICollectionReusableView()
-                }
-                
+                    for: indexPath)
                 let section = snapshot.sectionIdentifiers[indexPath.section]
                 header.configure(with: section.title)
                 return header
-                
-            case UICollectionView.elementKindSectionFooter:
-                guard let footer = collectionView.dequeueReusableSupplementaryView(
+            } else {
+                let footer: SeeMoreFooterView = collectionView.dequeueReusableSupplementaryView(
                     ofKind: kind,
-                    withReuseIdentifier: SeeMoreFooterView.reuseIdentifier,
                     for: indexPath
-                ) as? SeeMoreFooterView, let self = self else {
-                    return UICollectionReusableView()
-                }
+                )
                 footer.configure(
                     isExpanded: self.viewModel.isExpanded(for: indexPath.section),
                     sectionIndex: indexPath.section
                 )
                 footer.delegate = self
                 return footer
-                
-            default:
-                return nil
             }
         }
     }

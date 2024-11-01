@@ -13,5 +13,4 @@ struct LibrarySection: Hashable {
 enum LibraryItem: Hashable {
     case album(Album)
     case artist(Artist)
-    case playlist(Playlist)
 }

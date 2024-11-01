@@ -51,15 +51,4 @@ struct MockNetworking: Services {
         let baseDTO = try decoder.decode(BaseDTO<PlaylistsSectionDTO>.self, from: data)
         return baseDTO.data
     }
-    
-    func getSongs() async throws -> [SongItemDTO] {
-        await Task.delay(seconds: 1)
-        guard let url = Bundle.main.url(forResource: "Songs", withExtension: "json") else {
-            throw NSError(domain: "MockNetworking", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not Found"])
-        }
-        let data = try Data(contentsOf: url)
-        let decoder = JSONDecoder()
-        let baseDTO = try decoder.decode(BaseDTO<[SongItemDTO]>.self, from: data)
-        return baseDTO.data
-    }
 }

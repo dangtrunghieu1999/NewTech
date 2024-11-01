@@ -247,70 +247,59 @@ private extension MainViewController {
         )
         
         dataSource?.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
-            switch kind {
-            case UICollectionView.elementKindSectionHeader:
-                guard let header = collectionView.dequeueReusableSupplementaryView(
+            guard let self = self,
+                  let snapshot = self.dataSource?.snapshot() else {
+                return nil
+            }
+            if kind == UICollectionView.elementKindSectionHeader {
+                let header: HeaderView = collectionView.dequeueReusableSupplementaryView(
                     ofKind: kind,
-                    withReuseIdentifier: HeaderView.reuseIdentifier,
-                    for: indexPath
-                ) as? HeaderView else {
-                    return UICollectionReusableView()
-                }
-                guard let snapshot = self?.dataSource?.snapshot() else {
-                    return UICollectionReusableView()
-                }
-                
+                    for: indexPath)
                 let section = snapshot.sectionIdentifiers[indexPath.section]
                 header.configure(with: section.title)
                 return header
-                
-            case UICollectionView.elementKindSectionFooter:
-                guard let footer = collectionView.dequeueReusableSupplementaryView(
+            } else {
+                let footer: SeeMoreFooterView = collectionView.dequeueReusableSupplementaryView(
                     ofKind: kind,
-                    withReuseIdentifier: SeeMoreFooterView.reuseIdentifier,
                     for: indexPath
-                ) as? SeeMoreFooterView, let self = self else {
-                    return UICollectionReusableView()
-                }
+                )
                 footer.configure(
                     isExpanded: self.viewModel.isExpanded(for: indexPath.section),
                     sectionIndex: indexPath.section
                 )
                 footer.delegate = self
                 return footer
-                
-            default:
-                return nil
             }
         }
     }
     
     func configureCollectionView() {
-        collectionView.register(MusicItemCell.reuseIdentifier)
-        collectionView.register(HorizontalMusicItemCell.reuseIdentifier)
-        collectionView.register(AlbumCollectionViewCell.reuseIdentifier)
-        collectionView.register(ArtistCollectionViewCell.reuseIdentifier)
-        collectionView.register(PlayListCollectionViewCell.reuseIdentifier)
+        collectionView.registerReusableCell(MusicItemCell.self)
+        collectionView.registerReusableCell(HorizontalMusicItemCell.self)
+        collectionView.registerReusableCell(AlbumCollectionViewCell.self)
+        collectionView.registerReusableCell(ArtistCollectionViewCell.self)
         
-        collectionView.register(
-            HeaderView.nib,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: HeaderView.reuseIdentifier
+        collectionView.registerReusableSupplementaryView(
+            HeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader
         )
-        collectionView.register(
+        collectionView.registerReusableSupplementaryView(
             SeeMoreFooterView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-            withReuseIdentifier: SeeMoreFooterView.reuseIdentifier
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter
         )
     }
     
     @objc func segmentChanged(_ sender: UISegmentedControl) {
         guard let segmentType = MainSegmentType(rawValue: sender.selectedSegmentIndex) else { return }
-        
-        let snapshot = NSDiffableDataSourceSnapshot<MainViewModel.Section, MainItem>()
+        var snapshot = NSDiffableDataSourceSnapshot<MainViewModel.Section, MainItem>()
+        snapshot.deleteAllItems()
         dataSource?.apply(snapshot, animatingDifferences: false)
         
-        collectionView.setCollectionViewLayout(createLayout(), animated: false)
+        // Update layout
+        let newLayout = createLayout()
+        collectionView.setCollectionViewLayout(newLayout, animated: true)
+        
+        // Fetch new data
         viewModel.fetchData(for: segmentType)
     }
 }
@@ -332,18 +321,12 @@ private extension MainViewController {
         item: MusicItem
     ) -> UICollectionViewCell? {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: MusicItemCell.reuseIdentifier, 
-                for: indexPath
-            ) as? MusicItemCell
-            cell?.configure(with: item)
+            let cell: MusicItemCell = collectionView.dequeueReusableCell(for: indexPath)
+            cell.configure(with: item)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: HorizontalMusicItemCell.reuseIdentifier, 
-                for: indexPath
-            ) as? HorizontalMusicItemCell
-            cell?.configure(with: item)
+            let cell: HorizontalMusicItemCell = collectionView.dequeueReusableCell(for: indexPath)
+            cell.configure(with: item)
             return cell
         }
     }
@@ -355,27 +338,12 @@ private extension MainViewController {
     ) -> UICollectionViewCell? {
         switch item {
         case .album(let album):
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: AlbumCollectionViewCell.reuseIdentifier, 
-                for: indexPath
-            ) as? AlbumCollectionViewCell
-            cell?.configCell(with: album)
+            let cell: AlbumCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
+            cell.configCell(with: album)
             return cell
-            
         case .artist(let artist):
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ArtistCollectionViewCell.reuseIdentifier, 
-                for: indexPath
-            ) as? ArtistCollectionViewCell
-            cell?.configCell(with: artist)
-            return cell
-            
-        case .playlist(let playlist):
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: PlayListCollectionViewCell.reuseIdentifier, 
-                for: indexPath
-            ) as? PlayListCollectionViewCell
-            cell?.configCell(with: playlist)
+            let cell: ArtistCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
+            cell.configCell(with: artist)
             return cell
         }
     }

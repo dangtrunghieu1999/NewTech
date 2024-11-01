@@ -12,7 +12,7 @@ protocol SeeMoreFooterViewDelegate: AnyObject {
     func seeMoreFooterViewDidSelect(_ footerView: SeeMoreFooterView)
 }
 
-class SeeMoreFooterView: UICollectionReusableView {
+class SeeMoreFooterView: BaseCollectionViewHeaderFooterCell {
     // MARK: - Properties
     static let reuseIdentifier = String(describing: SeeMoreFooterView.self)
     weak var delegate: SeeMoreFooterViewDelegate?
@@ -46,15 +46,10 @@ class SeeMoreFooterView: UICollectionReusableView {
     }()
     
     // MARK: - Initialization
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func initialize() {
+        super.initialize()
         setupViews()
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     // MARK: - Setup
     private func setupViews() {
         addSubview(stackView)

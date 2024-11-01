@@ -32,6 +32,10 @@ class MainViewModel: ObservableObject {
     private let defaultVerticalDisplay: Int = 3
     private var cancellables = Set<AnyCancellable>()
     
+    private var cachedMusicData: [MusicSection]?
+    private var cachedLibraryData: [Section]?
+    private var currentSegment: MainSegmentType = .music
+    
     // MARK: - Public Methods
     func fetchData(for segmentType: MainSegmentType) {
         guard !state.isLoading else { return }
@@ -43,9 +47,19 @@ class MainViewModel: ObservableObject {
             do {
                 switch segmentType {
                 case .music:
-                    try await fetchMusicData()
+                    if let cachedData = cachedMusicData {
+                        self.originalMusicSections = cachedData
+                        self.updateDisplayedMusicSections()
+                    } else {
+                        try await fetchMusicData()
+                    }
+                    
                 case .library:
-                    try await fetchLibraryData()
+                    if let cachedData = cachedLibraryData {
+                        self.state = .loaded(value: cachedData)
+                    } else {
+                        try await fetchLibraryData()
+                    }
                 }
             } catch {
                 state = .failed(error: error)
@@ -65,38 +79,39 @@ class MainViewModel: ObservableObject {
     func isExpanded(for sectionIndex: Int) -> Bool {
         expandedSections.contains(sectionIndex)
     }
+    
+    func clearCache() {
+        cachedMusicData = nil
+        cachedLibraryData = nil
+    }
 }
 
 // MARK: - Private Methods
 extension MainViewModel {
-    func fetchMusicData() async throws {
+    private func fetchMusicData() async throws {
         let musicData = try await NetworkProvider.getHomeMusic()
+        self.cachedMusicData = musicData
         self.originalMusicSections = musicData
         updateDisplayedMusicSections()
     }
     
-    func fetchLibraryData() async throws {
+    private func fetchLibraryData() async throws {
         let albums = try await NetworkProvider.getAlbums()
         let albumSection = LibrarySection(
             title: albums.title,
             items: albums.items.map { LibraryItem.album($0) }
         )
-        state = .loaded(value: [.library(albumSection)])
+        var sections: [Section] = [.library(albumSection)]
+        state = .loaded(value: sections)
         
         let artists = try await NetworkProvider.getArtists()
-        var sections = (state.value ?? [])
         sections.append(.library(LibrarySection(
             title: artists.title,
             items: artists.items.map { LibraryItem.artist($0) }
         )))
         state = .loaded(value: sections)
         
-        let playlists = try await NetworkProvider.getPlaylists()
-        sections = (state.value ?? [])
-        sections.append(.library(LibrarySection(
-            title: playlists.title,
-            items: playlists.items.map { LibraryItem.playlist($0) }
-        )))
+        self.cachedLibraryData = sections
         state = .loaded(value: sections)
     }
     

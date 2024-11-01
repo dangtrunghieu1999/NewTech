@@ -37,14 +37,6 @@ class LibraryViewModel: ObservableObject {
                     items: artists.items.map { LibraryItem.artist($0) }
                 ))
                 state = .loaded(value: sections)
-                
-                let playlists = try await NetworkProvider.getPlaylists()
-                sections = state.value ?? []
-                sections.append(LibrarySection(
-                    title: playlists.title,
-                    items: playlists.items.map { LibraryItem.playlist($0) }
-                ))
-                state = .loaded(value: sections)
             } catch {
                 state = .failed(error: error)
             }

@@ -121,60 +121,17 @@ extension LibraryViewController {
         collectionView.backgroundColor = .systemBackground
         view.addSubview(collectionView)
         
-        collectionView.register(AlbumCollectionViewCell.reuseIdentifier)
-        collectionView.register(ArtistCollectionViewCell.reuseIdentifier)
-        collectionView.register(PlayListCollectionViewCell.reuseIdentifier)
-        collectionView.register(HeaderView.nib,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: HeaderView.reuseIdentifier)
+        collectionView.registerReusableCell(AlbumCollectionViewCell.self)
+        collectionView.registerReusableCell(ArtistCollectionViewCell.self)
+        collectionView.registerReusableSupplementaryView(
+            HeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader
+        )
     }
     
     private func createLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
-            return self.createHorizontalSection()
-        }
-        return layout
-    }
-    
-    private func createHorizontalSection() -> NSCollectionLayoutSection {
-        // Item
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(115),  // Fixed width of 115
-            heightDimension: .estimated(140)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 5,
-            bottom: 0,
-            trailing: 5
-        )
-        
-        let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: itemSize,
-            subitems: [item]
-        )
-        
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0,
-                                                        leading: 16,
-                                                        bottom: 0,
-                                                        trailing: 16)
-        // Header
-        let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
-        )
-        let header = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: headerSize,
-            elementKind: UICollectionView.elementKindSectionHeader,
-            alignment: .top
-        )
-        section.boundarySupplementaryItems = [header]
-        
-        return section
+        let layoutProvider = MainLayoutFactory.createLayout(for: .library)
+        return layoutProvider.createLayout()
     }
 }
 
@@ -186,47 +143,19 @@ extension LibraryViewController {
         ) { (collectionView, indexPath, item) -> UICollectionViewCell? in
             switch item {
             case .album(let album):
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: AlbumCollectionViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as? AlbumCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
+                let cell: AlbumCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
                 cell.configCell(with: album)
                 return cell
-                
             case .artist(let artist):
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: ArtistCollectionViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as? ArtistCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
+                let cell: ArtistCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
                 cell.configCell(with: artist)
-                return cell
-                
-            case .playlist(let playlist):
-                guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: PlayListCollectionViewCell.reuseIdentifier,
-                    for: indexPath
-                ) as? PlayListCollectionViewCell else {
-                    return UICollectionViewCell()
-                }
-                cell.configCell(with: playlist)
                 return cell
             }
         }
         
         dataSource?.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) -> UICollectionReusableView? in
-            guard let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: HeaderView.reuseIdentifier,
-                for: indexPath
-            ) as? HeaderView,
-            let snapshot = self?.dataSource?.snapshot() else {
-                return UICollectionReusableView()
-            }
-            
+            guard let snapshot = self?.dataSource?.snapshot() else { return nil }
+            let header: HeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
             let section = snapshot.sectionIdentifiers[indexPath.section]
             header.configure(with: section.title)
             return header

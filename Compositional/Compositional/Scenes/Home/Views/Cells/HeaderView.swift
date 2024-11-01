@@ -7,15 +7,18 @@
 
 import UIKit
 
-class HeaderView: UICollectionReusableView {
-    static let reuseIdentifier = "HeaderView"
+class HeaderView: BaseCollectionViewHeaderFooterCell {
+
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .black
+        return label
+    }()
     
-    @IBOutlet private weak var titleLabel: UILabel!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        titleLabel.textColor = .black
+    override func initialize() {
+        super.initialize()
+        layoutTitleLabel()
     }
     
     override func prepareForReuse() {
@@ -25,5 +28,13 @@ class HeaderView: UICollectionReusableView {
     
     func configure(with title: String) {
         titleLabel.text = title
+    }
+    
+    private func layoutTitleLabel() {
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalToSuperview()
+        }
     }
 }

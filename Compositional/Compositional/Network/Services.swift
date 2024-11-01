@@ -12,5 +12,4 @@ protocol Services {
     func getLibraryAlbums() async throws -> AlbumsSectionDTO
     func getLibraryArtists() async throws -> ArtistsSectionDTO
     func getLibraryPlaylists() async throws -> PlaylistsSectionDTO
-    func getSongs() async throws -> [SongItemDTO]
 }
