@@ -15,6 +15,7 @@ class MainViewController: UIViewController {
     private var dataSource: UICollectionViewDiffableDataSource<MainViewModel.Section, MainItem>?
     private let viewModel = MainViewModel()
     private var cancellables = Set<AnyCancellable>()
+    weak var coordinator: MainCoordinator?
     
     private var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -387,8 +388,8 @@ extension MainViewController: SeeMoreFooterViewDelegate {
     }
 }
 
-// MARK:- UIScrollViewDelegate
-extension MainViewController: UIScrollViewDelegate, UICollectionViewDelegate {
+// MARK: - UIScrollViewDelegate
+extension MainViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset.y
         
@@ -411,5 +412,13 @@ extension MainViewController: UIScrollViewDelegate, UICollectionViewDelegate {
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension MainViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        coordinator?.showDetail(sectionIndex: indexPath.section, itemIndex: indexPath.item)
     }
 }
