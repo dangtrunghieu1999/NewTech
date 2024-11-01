@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import SnapKit
 
 class MusicViewController: UIViewController {
     // MARK: - Components
@@ -22,22 +23,46 @@ class MusicViewController: UIViewController {
          return indicator
      }()
     
+    private let headerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let avatarImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = UIImage(named: "artist2")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private var headerHeightConstraint: Constraint?
+    private var avatarSizeConstraint: Constraint?
+    private var avatarCenterXConstraint: Constraint?
+    private var avatarLeadingConstraint: Constraint?
+    
     // MARK: - ViewLife Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupViews()
+        setupHeaderView()
         configureCollectionView()
         configureDataSource()
         configureLoadingView()
         setupBindings()
-        setupViews()
         viewModel.fetchData()
+        
+        collectionView.delegate = self
     }
 }
 
 // MARK: - Indicator
 private extension MusicViewController {
     func setupViews() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         title = "Music"
     }
     
@@ -115,11 +140,17 @@ private extension MusicViewController {
 extension MusicViewController {
     private func configureCollectionView() {
         collectionView = UICollectionView(frame: view.frame, collectionViewLayout: createLayout())
-        
-        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = .white
+        collectionView.showsVerticalScrollIndicator = false
         view.addSubview(collectionView)
         
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom)
+            make.leading.bottom.trailing.equalToSuperview()
+        }
+        
+        // Register cells and supplementary views
         collectionView.register(MusicItemCell.reuseIdentifier)
         collectionView.register(HorizontalMusicItemCell.reuseIdentifier)
         collectionView.register(HeaderView.nib,
@@ -314,5 +345,57 @@ extension MusicViewController {
 extension MusicViewController: SeeMoreFooterViewDelegate {
     func seeMoreFooterViewDidSelect(_ footerView: SeeMoreFooterView) {
         viewModel.toggleExpand(for: footerView.sectionIndex)
+    }
+}
+
+extension MusicViewController: UIScrollViewDelegate, UICollectionViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset = scrollView.contentOffset.y
+        
+        let newHeight = max(100, 200 - offset)
+        headerHeightConstraint?.update(offset: newHeight)
+        
+        let newAvatarSize = max(50, 100 - offset / 2)
+        avatarSizeConstraint?.update(offset: newAvatarSize)
+        avatarImageView.layer.cornerRadius = newAvatarSize / 2
+        
+        if offset > 100 {
+            avatarCenterXConstraint?.deactivate()
+            avatarLeadingConstraint?.activate()
+        } else {
+            avatarLeadingConstraint?.deactivate()
+            avatarCenterXConstraint?.activate()
+        }
+        
+        // Animate changes
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+}
+
+extension MusicViewController {
+    func setupHeaderView() {
+        view.addSubview(headerView)
+        headerView.addSubview(avatarImageView)
+        
+        headerView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+            headerHeightConstraint = make.height.equalTo(200).constraint
+        }
+        
+        avatarImageView.snp.makeConstraints { make in
+            avatarSizeConstraint = make.width.height.equalTo(100).constraint
+            make.centerY.equalToSuperview()
+            avatarCenterXConstraint = make.centerX.equalToSuperview().constraint
+        }
+        
+        avatarImageView.snp.prepareConstraints { make in
+            avatarLeadingConstraint = make.leading.equalTo(16).constraint
+        }
+        avatarLeadingConstraint?.deactivate()
+        
+        avatarImageView.layer.cornerRadius = 50
     }
 }
