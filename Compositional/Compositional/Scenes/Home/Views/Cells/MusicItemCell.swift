@@ -14,6 +14,7 @@ class MusicItemCell: BaseCollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 5
+        imageView.backgroundColor = .systemGray5
         return imageView
     }()
     
