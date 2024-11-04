@@ -21,21 +21,21 @@ final class LibraryLayoutProvider: MainLayoutProvider {
             heightDimension: .estimated(140)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 5,
-            bottom: 0,
-            trailing: 5
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(115),
+            heightDimension: .estimated(140)
         )
         
         let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: itemSize,
+            layoutSize: groupSize,
             subitems: [item]
         )
         
         // Section
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
+        section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(top: 0,
                                                         leading: 16,
                                                         bottom: 0,

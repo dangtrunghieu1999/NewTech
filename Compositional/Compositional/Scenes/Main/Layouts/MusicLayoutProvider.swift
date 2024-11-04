@@ -21,7 +21,7 @@ final class MusicLayoutProvider: MainLayoutProvider {
     private static func createVerticalSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(40)
+            heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
@@ -72,25 +72,25 @@ final class MusicLayoutProvider: MainLayoutProvider {
     private static func createHorizontalSection() -> NSCollectionLayoutSection {
         // Item
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(115),  // Fixed width of 115
+            widthDimension: .absolute(115),
             heightDimension: .estimated(140)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 5,
-            bottom: 0,
-            trailing: 5
-        )
         
+        // Group
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(115),
+            heightDimension: .estimated(140)
+        )
         let group = NSCollectionLayoutGroup.horizontal(
-            layoutSize: itemSize,
+            layoutSize: groupSize,
             subitems: [item]
         )
         
         // Section
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
+        section.interGroupSpacing = 10
         section.contentInsets = NSDirectionalEdgeInsets(top: 0,
                                                         leading: 16,
                                                         bottom: 0,

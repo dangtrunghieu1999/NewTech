@@ -64,12 +64,12 @@ class ArtistCollectionViewCell: BaseCollectionViewCell {
         containerStackView.addArrangedSubview(titleLabel)
         
         containerStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalToSuperview().priority(.high)
         }
         
         imageView.snp.makeConstraints { make in
-            make.width.equalTo(containerStackView.snp.width)
-            make.height.equalTo(imageView.snp.width) // 1:1 aspect ratio
+            make.width.equalTo(115).priority(.required)
+            make.height.equalTo(imageView.snp.width).priority(.required)
         }
         
         titleLabel.snp.makeConstraints { make in

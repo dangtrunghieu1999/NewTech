@@ -15,7 +15,6 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         stackView.axis = .vertical
         stackView.spacing = 4
         stackView.alignment = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
     
@@ -24,7 +23,6 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 5
         imageView.contentMode = .scaleAspectFill
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .systemGray6
         return imageView
     }()
@@ -34,7 +32,6 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         stackView.axis = .vertical
         stackView.spacing = 2
         stackView.alignment = .leading
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
     
@@ -43,7 +40,6 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         label.textColor = .black
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -52,7 +48,6 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         label.textColor = .gray
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 11)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -87,16 +82,18 @@ class AlbumCollectionViewCell: BaseCollectionViewCell {
         labelsStackView.addArrangedSubview(subtitleLabel)
         
         containerStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalToSuperview().priority(.high)
         }
         
         imageView.snp.makeConstraints { make in
-            make.width.equalTo(containerStackView.snp.width)
-            make.height.equalTo(imageView.snp.width) // 1:1 aspect ratio
+            make.width.equalTo(115)
+                .priority(.required)
+            make.height.equalTo(imageView.snp.width)
+                .priority(.required)
         }
         
         labelsStackView.snp.makeConstraints { make in
-            make.width.equalToSuperview()
+            make.width.equalTo(imageView)
         }
     }
 }
